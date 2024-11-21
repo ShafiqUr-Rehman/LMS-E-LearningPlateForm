@@ -28,6 +28,7 @@ mongoose
   .catch((err) => {
     console.error("MongoDB connection error:", err);
   });
+  
 
 // Add this logging middleware
 app.use((req, res, next) => {

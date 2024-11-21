@@ -1,13 +1,16 @@
 import dotenv from "dotenv";
 import redis from "redis";
 import User from "../models/user.model.js";
+import redisClient from '../config/redis.js';
 
 dotenv.config();
 
-
 export const sendToken = async (user, statusCode, res) => {
-     //upload session to the redis
-     redis.set(User._id, JSON.stringify(user));
+     // Store user data in Redis
+    await redisClient.set(user._id.toString(), JSON.stringify(user), {
+        EX: 90 * 24 * 60 * 60 // 90 days in seconds
+      });
+
      
     // Create access and refresh tokens using the instance methods
     const accessToken = user.SignAccessToken();
