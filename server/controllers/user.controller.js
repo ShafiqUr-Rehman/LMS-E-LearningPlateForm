@@ -8,6 +8,7 @@ import ejs from "ejs";
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { sendToken } from "../utilis/jwt.js";
+import redisClient from "../utilis/redis.js";
 
 dotenv.config();
 
@@ -124,23 +125,28 @@ export const LoginUser = async (req, res, next) => {
         }
 
         // Pass the user instance to sendToken function
-        sendToken(user, 200, res);  // Updated here to pass the actual user object
+        sendToken(user, 200, res); 
     } catch (error) {
         return next(new ErrorHandler(error.message, 400));
     }
 };
 
 
-export const LogoutUser = (req, res, next) => {
+export const LogoutUser = async (req, res, next) => {
     try {
-        res.cookie("access_token", "" ,{maxAge : 1 });  //Setting maxAge: 1 essentially sets the cookie's lifetime to 1 millisecond, which immediately expires the cookie.
-        //This approach forces the browser to delete the cookie as soon as it is set. By setting maxAge to a very short time, you're effectively ensuring the cookies are cleared immediately.
-        res.cookie("refresh_token","" ,{maxAge:1});
+        res.cookie("access_token", "", { maxAge: 1, httpOnly: true, secure: process.env.NODE_ENV === "production" });
+        res.cookie("refresh_token", "", { maxAge: 1, httpOnly: true, secure: process.env.NODE_ENV === "production" });
+
+        const userId = req.user?._id?.toString();
+        if (userId) {
+            await redisClient.del(userId);
+        }
+
         res.status(200).json({
             success: true,
-            message: "Logged out successfully.."
+            message: "Logged out successfully"
         });
     } catch (error) {
-        return next(new ErrorHandler(error.message, 400));
+        return next(new ErrorHandler(error.message, 500));
     }
 };
