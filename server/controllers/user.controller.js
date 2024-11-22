@@ -9,6 +9,8 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { sendToken } from "../utilis/jwt.js";
 import redisClient from "../utilis/redis.js";
+import {accessTokenOptions , refreshTokenOptions} from "../utilis/jwt.js";
+
 
 dotenv.config();
 
@@ -108,7 +110,7 @@ export const activateUser = async (req, res, next) => {
     }
 };
 
-// Login User
+
 export const LoginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -119,7 +121,7 @@ export const LoginUser = async (req, res, next) => {
         if (!user) {
             return next(new ErrorHandler("Invalid email or password"));
         }
-        const isPasswordMatch = await user.comparePassword(password);  // Ensure async comparison
+        const isPasswordMatch = await user.comparePassword(password);  // call the comparePassword funciton
         if (!isPasswordMatch) {
             return next(new ErrorHandler("Invalid Email or password"));
         }
@@ -150,3 +152,44 @@ export const LogoutUser = async (req, res, next) => {
         return next(new ErrorHandler(error.message, 500));
     }
 };
+
+// Function to update access token using a new refresh token name
+export const updateAccessToken = async (req, res, next) => {
+    try {
+        const newRefreshToken = req.cookies?.refresh_token;
+        const decoded = jwt.verify(newRefreshToken, process.env.REFRESH_TOKEN);
+        if (!decoded) {
+            return next(new ErrorHandler("Could not refresh token", 400)); 
+        }
+
+        // Get the user session from Redis using the decoded user ID
+        const session = await redisClient.get(decoded.id);
+        if (!session) {
+            return next(new ErrorHandler("Could not refresh token", 400)); 
+        }
+
+        // Parse session data to get user information
+       // The JSON.parse() method is used to convert a JSON-formatted string into a JavaScript object adn vice versa
+        const user = JSON.parse(session);
+
+        // Create new access token and refresh token
+        const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN, {
+            expiresIn: "5m", 
+        });
+
+        const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN, {
+            expiresIn: "3d", 
+        });
+
+        // Set the new tokens in cookies and send the response
+        res.cookie("access_token", accessToken,accessTokenOptions); 
+        res.cookie("refresh_token", refreshToken,refreshTokenOptions); 
+        res.status(200).json({
+            success: true,
+            message: "Tokens refreshed successfully",
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500)); 
+    }
+};
+
