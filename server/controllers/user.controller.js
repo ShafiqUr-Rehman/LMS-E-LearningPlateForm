@@ -11,7 +11,7 @@ import { sendToken } from "../utilis/jwt.js";
 import redisClient from "../utilis/redis.js";
 import { accessTokenOptions, refreshTokenOptions } from "../utilis/jwt.js";
 import { getUserById } from "../services/user.services.js";
-
+import cloudinary from "cloudinary";
 
 dotenv.config();
 
@@ -226,7 +226,7 @@ export const socialAuth = async (req, res, next) => {
 export const updateUserInfo = async (req, res, next) => {
     try {
         const { name, email } = req.body;
-        const userId = req.user?._id; 
+        const userId = req.user?._id;
         const user = await User.findById(userId);
         if (!user) {
             return next(new ErrorHandler("User not found", 404));
@@ -288,6 +288,53 @@ export const updateUserPassword = async (req, res, next) => {
         next(new ErrorHandler(error.message, 500));
     }
 };
+
+// Update Profile Picture/Avatar
+export const updateUserAvatar = async (req, res, next) => {
+    try {
+        const { avatar } = req.body;
+        const userId = req.user?._id;
+
+        // Fetch user from the database
+        const user = await User.findById(userId);
+        if (!user) {
+            return next(new ErrorHandler("User not found", 404));
+        }
+
+        if (avatar) {
+            // Delete old avatar if it exists
+            if (user.avatar?.public_id) {
+                await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+            }
+
+            // Upload new avatar
+            const myCloud = await cloudinary.uploader.upload(avatar, {
+                folder: "avatars",
+                width: 150,
+                crop: "scale",
+            });
+
+            // Update avatar details
+            user.avatar = {
+                public_id: myCloud.public_id,
+                url: myCloud.secure_url,
+            };
+        }
+
+        // Save updated user and cache in Redis
+        await user.save();
+        await redisClient.set(userId, JSON.stringify(user));
+
+        res.status(200).json({
+            success: true,
+            message: "Avatar updated successfully",
+            avatar: user.avatar,
+        });
+    } catch (error) {
+        next(new ErrorHandler(error.message, 500));
+    }
+};
+
 
 
 

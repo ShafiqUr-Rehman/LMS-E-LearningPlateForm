@@ -6,8 +6,13 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import userRouter from './routes/user.route.js';
-
+import cloudinary from "cloudinary"
 dotenv.config();
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API,
+  api_secret: process.env.CLOUD_SECRETE_KEY,
+})
 
 const app = express();
 app.use(express.json({ limit: "50mb" })); // Limit for large file uploads, e.g., Cloudinary storage
@@ -28,23 +33,9 @@ mongoose
   .catch((err) => {
     console.error("MongoDB connection error:", err);
   });
-  
 
-// Add this logging middleware
-app.use((req, res, next) => {
-  console.log(`Received ${req.method} request for ${req.url}`);
-  next();
-});
-
-// routes
-app.get('/test', (req, res) => {
-  res.json({ message: 'Server is working correctly' });
-});
-
-// Use userRouter - IMPORTANT: This should come before the "Unknown routes" handler
 app.use("/server/v1", userRouter);
 
-// Unknown routes - This should be AFTER all other routes
 app.all("*", (req, res, next) => {
   next(new ErrorHandler(`Cannot find ${req.originalUrl} on this server!`, 404));
 });
@@ -76,7 +67,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
+
 app.listen(PORT, () => {
   console.log(`Server is running on PORT ${PORT}`);
 });
