@@ -24,7 +24,7 @@ export const refreshTokenOptions = {
 export const sendToken = async (user, statusCode, res) => {
     // Store user data in Redis
     console.log('Storing user in Redis:', user._id.toString());
-    await redisClient.set(user._id.toString(), JSON.stringify(user), {
+    await redisClient.set(user._id.toString(), JSON.stringify(user),{
         EX: 90 * 24 * 60 * 60 // 90 days in seconds
     });
     console.log('User stored in Redis');

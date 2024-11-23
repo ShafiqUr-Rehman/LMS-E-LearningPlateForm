@@ -1,5 +1,5 @@
 import expres from "express"
-import {registerUser,activateUser,LoginUser,LogoutUser,updateAccessToken} from "../controllers/user.controller.js"
+import {registerUser,activateUser,LoginUser,LogoutUser,updateAccessToken,getUserInfo ,socialAuth} from "../controllers/user.controller.js"
 import {isAuthenticated, authorizeRoles}  from "../middleWare/auth.js"
 
 const userRouter = expres.Router();
@@ -8,6 +8,8 @@ userRouter.post("/activate-user" , activateUser);
 userRouter.post("/login" , LoginUser);
 userRouter.get("/logout", isAuthenticated, LogoutUser);
 userRouter.get("/refresh", updateAccessToken);
+userRouter.get("/me", isAuthenticated, getUserInfo);
+userRouter.post("/social-auth",socialAuth);
 
 // userRouter.get("/logout", isAuthenticated, (req, res, next) => {      to protect admin route must pass parameters
 //     try {

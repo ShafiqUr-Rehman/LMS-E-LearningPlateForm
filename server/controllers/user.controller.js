@@ -10,6 +10,7 @@ import { dirname, join } from 'path';
 import { sendToken } from "../utilis/jwt.js";
 import redisClient from "../utilis/redis.js";
 import {accessTokenOptions , refreshTokenOptions} from "../utilis/jwt.js";
+import { getUserById } from "../services/user.services.js";
 
 
 dotenv.config();
@@ -192,4 +193,34 @@ export const updateAccessToken = async (req, res, next) => {
         return next(new ErrorHandler(error.message, 500)); 
     }
 };
+
+// get User (load user)
+export const getUserInfo = async (req, res, next) => {
+    try {
+        const userId = req.user?._id; // Extract user ID from the authenticated request
+        await getUserById(userId, res); // Pass the userId directly
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 400));
+    }
+};
+
+// Social Auth function
+export const socialAuth = async (req, res, next) => {
+    try {
+        const {name,email,avatar} = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            const newUser = await User.create({ name,email,avatar}); // Await added here
+            sendToken(newUser, 200, res); 
+        } else {
+            sendToken(user, 200, res); 
+        }
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 400));
+    }
+};
+
+// update User info
+
 
