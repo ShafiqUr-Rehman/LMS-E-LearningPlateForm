@@ -289,39 +289,30 @@ export const updateUserPassword = async (req, res, next) => {
     }
 };
 
-// Update Profile Picture/Avatar
 export const updateUserAvatar = async (req, res, next) => {
     try {
         const { avatar } = req.body;
+        if (!avatar) return next(new ErrorHandler("Avatar image is required", 400));
+
         const userId = req.user?._id;
-
-        // Fetch user from the database
         const user = await User.findById(userId);
-        if (!user) {
-            return next(new ErrorHandler("User not found", 404));
-        }
-
-        if (avatar) {
-            // Delete old avatar if it exists
-            if (user.avatar?.public_id) {
+        if (!user) return next(new ErrorHandler("User not found", 404));
+        if (user.avatar?.public_id) {
+            try {
                 await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+            } catch {
+                return next(new ErrorHandler("Failed to delete old avatar from Cloudinary", 500));
             }
-
-            // Upload new avatar
-            const myCloud = await cloudinary.uploader.upload(avatar, {
-                folder: "avatars",
-                width: 150,
-                crop: "scale",
-            });
-
-            // Update avatar details
-            user.avatar = {
-                public_id: myCloud.public_id,
-                url: myCloud.secure_url,
-            };
         }
-
-        // Save updated user and cache in Redis
+        const myCloud = await cloudinary.uploader.upload(avatar, {
+            folder: "avatars",
+            width: 150,
+            crop: "scale",
+        });
+        user.avatar = {
+            public_id: myCloud.public_id,
+            url: myCloud.secure_url,
+        };
         await user.save();
         await redisClient.set(userId, JSON.stringify(user));
 
@@ -334,6 +325,7 @@ export const updateUserAvatar = async (req, res, next) => {
         next(new ErrorHandler(error.message, 500));
     }
 };
+
 
 
 

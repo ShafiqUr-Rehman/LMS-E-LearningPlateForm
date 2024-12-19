@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import userRouter from './routes/user.route.js';
-import cloudinary from "cloudinary"
+import { v2 as cloudinary } from 'cloudinary';
 dotenv.config();
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
