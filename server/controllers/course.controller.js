@@ -68,8 +68,50 @@ export const editCourse = async (req, res, next) => {
             course: updatedCourse,
         });
     } catch (error) {
-        next(error);
+        return next(new ErrorHandler(error.message, 500));
     }
 };
+
+
+// Get single course -- without purchase and some fields
+export const getSingleCourse = async (req, res, next) => {
+    try {
+        const course = await Course.findById(req.params.id)
+            .select("-courseData.videoUrl -courseData.suggestions -courseData.questions -courseData.links");
+        if (!course) {
+            return res.status(404).json({
+                success: false,
+                message: "Course not found"
+            });
+        }
+        res.status(200).json({
+            success: true,
+            course
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
+
+// Get all course -- without purchase and some fields
+export const getAllCourse = async (req, res, next) => {
+    try {
+        const course = await Course.find().select("-courseData.videoUrl -courseData.suggestions -courseData.questions -courseData.links");
+
+        if (!course) {
+            return res.status(404).json({
+                success: false,
+                message: "Course not found"
+            });
+        }
+        res.status(200).json({
+            success: true,
+            course
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
+
 
 
