@@ -1,18 +1,37 @@
 import Course from "../models/course.model.js";
-import jwt from "jsonwebtoken";
-import ErrorHandler from "../utilis/ErrorHandler.js";
-import sendMail from '../utilis/send.mail.js';
-import dotenv from "dotenv";
-import ejs from "ejs";
 import cloudinary from "cloudinary";
+import { createCourse } from "../services/course.services.js";
+import ErrorHandler from "../utilis/ErrorHandler.js";
 
-// upload course
-export const uploadCourse = async(req,res,nest)=>{
+export const uploadCourse = async (req, res, next) => {
     try {
         const data = req.body;
-        const thumbnail = req.body;
-        const course = req.body;
+        if (req.body.thumbnail) {
+            try {
+                const myCloud = await cloudinary.v2.uploader.upload(req.body.thumbnail, {
+                    folder: "course",
+                });
+
+                data.thumbnail = {
+                    public_id: myCloud.public_id,
+                    url: myCloud.secure_url,
+                };
+            } catch (uploadError) {
+                return next(new ErrorHandler("Failed to upload thumbnail to Cloudinary", 500));
+            }
+        }
+
+        if (!data.thumbnail) {
+            data.thumbnail = {
+                public_id: null,
+                url: null,
+            };
+        }
+        await createCourse(data, res, next);
     } catch (error) {
-        
+        next(error); 
     }
-}
+};
+
+
+

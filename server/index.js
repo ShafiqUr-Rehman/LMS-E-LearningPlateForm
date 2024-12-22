@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import userRouter from './routes/user.route.js';
+import courseRouter from './routes/course.route.js';
 import { v2 as cloudinary } from 'cloudinary';
 dotenv.config();
 cloudinary.config({
@@ -35,10 +36,21 @@ mongoose
   });
 
 app.use("/server/v1", userRouter);
+app.use("/server/v1", courseRouter);
+
 
 app.all("*", (req, res, next) => {
   next(new ErrorHandler(`Cannot find ${req.originalUrl} on this server!`, 404));
 });
+
+
+
+
+
+
+
+
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

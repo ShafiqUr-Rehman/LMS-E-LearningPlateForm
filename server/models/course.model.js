@@ -25,7 +25,6 @@ const commentSchema = new mongoose.Schema({
 
 const courseDataSchema = new mongoose.Schema({
     videoUrl: String,
-    videoThumbnail: Object,
     title: String,
     videoSection: String,
     description: String,
@@ -47,11 +46,11 @@ const courseSchema = new mongoose.Schema({
         type: Number
     },
     thumbnail: {
-        public_id: { type: String, required: true },
+        public_id: { type: String,  },
     },
     url: {
         type: String,
-        required: true
+      
     },
     tags: {
         type: [String],
