@@ -187,7 +187,6 @@ export const getCourseByUser = async (req, res, next) => {
 };
 
 // Add Questions in Course
-
 export const addQuestions = async(req,res,next)=>{
     try {
         const {question,courseId,contentId} = req.body;
@@ -214,6 +213,17 @@ export const addQuestions = async(req,res,next)=>{
         })   
     } catch (error) {
         console.error("Cannot add Question please later", error.message);
+        return next(new ErrorHandler(error.message, 500));
+    }
+}
+
+// Add Anwsers in the Course Question
+
+export const AddAnswer = async (req,res,next)=>{
+    try {
+        
+    } catch (error) {
+        console.error("Cannot add Answer please later", error.message);
         return next(new ErrorHandler(error.message, 500));
     }
 }
