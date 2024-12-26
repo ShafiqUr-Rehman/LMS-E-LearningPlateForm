@@ -3,6 +3,7 @@ import cloudinary from "cloudinary";
 import { createCourse } from "../services/course.services.js";
 import ErrorHandler from "../utilis/ErrorHandler.js";
 import redisClient from "../utilis/redis.js";
+import mongoose from "mongoose";
 
 export const uploadCourse = async (req, res, next) => {
     try {
@@ -184,6 +185,38 @@ export const getCourseByUser = async (req, res, next) => {
         return next(new ErrorHandler(error.message, 500));
     }
 };
+
+// Add Questions in Course
+
+export const addQuestions = async(req,res,next)=>{
+    try {
+        const {question,courseId,contentId} = req.body;
+        const course = await Course.findById(courseId);
+        if(!mongoose.Types.ObjectId.isValid(contentId)){
+            return new(ErrorHandler("Invalid Content Id : ", 400)); 
+        }
+        const courseContent = course?.courseData?.find((item)=> item._id.equals(contentId));
+        if(!courseContent){
+            return next(ErrorHandler("Invalid Content Id :" , 400));
+        }
+        //crete a new quesiton object
+        const newQuestion = {
+            user : req.user,
+            question,
+            questoinReplies : [],
+        };
+        // add this question to our couseeContent;
+        courseContent.questions.push(newQuestion);  
+        await course.save();  
+        res.status(200).json({
+            success : true,
+            course,
+        })   
+    } catch (error) {
+        console.error("Cannot add Question please later", error.message);
+        return next(new ErrorHandler(error.message, 500));
+    }
+}
 
 
 

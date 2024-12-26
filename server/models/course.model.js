@@ -9,7 +9,7 @@ const reviewSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
-    comment: String,
+    questoin: String,
 });
 
 const linkSchema = new mongoose.Schema({
@@ -19,8 +19,8 @@ const linkSchema = new mongoose.Schema({
 
 const commentSchema = new mongoose.Schema({
     user: Object,
-    comment: String,
-    commentReplies: [Object],
+    question: String,
+    questoinReplies: [Object],
 });
 
 const courseDataSchema = new mongoose.Schema({
