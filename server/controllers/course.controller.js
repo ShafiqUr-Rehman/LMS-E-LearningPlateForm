@@ -3,7 +3,6 @@ import cloudinary from "cloudinary";
 import { createCourse } from "../services/course.services.js";
 import ErrorHandler from "../utilis/ErrorHandler.js";
 import redisClient from "../utilis/redis.js";
-import mongoose from 'mongoose';
 
 export const uploadCourse = async (req, res, next) => {
     try {
@@ -149,42 +148,44 @@ export const getAllCourse = async (req, res, next) => {
 };
 
 
+// get course content --only for valid users
 
 export const getCourseByUser = async (req, res, next) => {
     try {
-        const userCourseList = req.user?.courses;
+        const userCourseList = req.user?.courses; // Courses from user's profile
         const courseId = req.params.id;
 
-        // Check if the courseId is a valid ObjectId
-        if (!mongoose.Types.ObjectId.isValid(courseId)) {
-            return next(new ErrorHandler("Invalid course ID", 400));
-        }
+        console.log("Requested Course ID:", courseId);
+        console.log("User's Courses:", userCourseList);
 
-        // Check if the user has any courses
-        if (!userCourseList || userCourseList.length === 0) {
-            return next(new ErrorHandler("You are not enrolled in any courses", 404));
-        }
-
-        // Check if the requested course is in the user's course list
-        const courseExists = userCourseList.some(course => course._id.toString() === courseId);
+        // Ensure the course exists in the user's list
+        const courseExists = userCourseList?.find(course => course._id.toString() === courseId);
         if (!courseExists) {
             return next(new ErrorHandler("You are not eligible to access this course", 403));
         }
+
+        // Fetch the course details from the database
         const course = await Course.findById(courseId);
         if (!course) {
             return next(new ErrorHandler("Course not found", 404));
         }
 
+        console.log("Found Course:", course);
+
+        // Extract course content
         const content = course.courseData;
+
         res.status(200).json({
             success: true,
             content,
         });
-
     } catch (error) {
+        console.error("Error in getCourseByUser:", error.message);
         return next(new ErrorHandler(error.message, 500));
     }
-}
+};
+
+
 
 
 
