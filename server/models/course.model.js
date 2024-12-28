@@ -9,7 +9,9 @@ const reviewSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
-    questoin: String,
+    comment: String,
+    commentReplies : [Object],
+
 });
 
 const linkSchema = new mongoose.Schema({

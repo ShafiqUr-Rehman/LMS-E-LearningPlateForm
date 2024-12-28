@@ -270,7 +270,7 @@ export const AddAnswer = async (req, res, next) => {
 
         // Send notification email if the answer is not from the question creator
         if (req.user._id.toString() !== question.user._id.toString()) {
-                const data = {
+            const data = {
                 name: question.user.name,
                 title: courseContent.title,
             };
@@ -300,6 +300,72 @@ export const AddAnswer = async (req, res, next) => {
         return next(new ErrorHandler(error.message, 500));
     }
 };
+
+// Add Review in Course
+export const addReview = async (req, res, next) => {
+    try {
+        const userCourselist = req.user?.courses;
+        const courseId = req.params.id;
+
+        // Check if the user has access to the course
+        const courseExists = userCourselist?.some((course) => course._id.toString() === courseId.toString());
+        if (!courseExists) return next(new ErrorHandler("You are not eligible to access this course", 404));
+
+        const course = await Course.findById(courseId);
+        const { review, rating } = req.body;
+
+        // Add the review to the course
+        const reviewData = { user: req.user, rating, comment: review };
+        course?.reviews.push(reviewData);
+
+        // Calculate the new average rating
+        let avg = 0;
+        course?.reviews.forEach((rev) => (avg += rev.rating));
+        if (course) course.rating = avg / course.reviews.length;
+
+        await course.save();
+
+        // Notification placeholder (to be implemented later)
+        const notification = {
+            title: "New Review Received",
+            message: `${req.user?.name} has given a review on your course ${course?.name}`,
+        };
+
+        res.status(200).json({
+            success: true,
+            course,
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
+
+// add Reply to the Review
+export const addReplyToReview = async (req, res, next) => {
+    try {
+        const { comment, courseId, reviewId } = req.body;
+        const course = await Course.findById(courseId);
+        if (!course) return next(new ErrorHandler("Course not found", 404));
+
+        const review = course.reviews.find((rev) => rev._id.toString() === reviewId);
+        if (!review) return next(new ErrorHandler("Review not found", 404));
+
+        if (!req.user) return next(new ErrorHandler("User not authenticated", 401));
+
+        const replyData = { user: req.user._id, comment };
+        if (!review.commentReplies) {
+            review.commentReplies = []
+        };
+        review.commentReplies.push(replyData);
+        await course.save();
+
+        res.status(200).json({ success: true, course });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
+
+
 
 
 
