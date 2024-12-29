@@ -4,6 +4,8 @@ import User from "../models/user.model.js";
 import Course from "../models/course.model.js";
 import OrderModel from "../models/order.model.js";
 import NotificationModel from "../models/notification.model.js";
+import cron from "node-cron";
+
 
 // get all notification  --- only for Admin
 export const getNotification = async(req,res,next)=>{
@@ -40,3 +42,19 @@ export const updateNotification = async (req, res, next) => {
         return next(new ErrorHandler(error.message, 500));
     }
 };
+
+// delete notification --only Admin
+cron.schedule("0 0 * * *", async () => {    // Schedule a cron job to run daily
+    try {
+        console.log("Running daily notification cleanup");
+
+        // Calculate the date 30 days ago
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        await NotificationModel.deleteMany({ createdAt: { $lt: thirtyDaysAgo } });
+        console.log("Deleted Read notifications successfully.");
+    } catch (error) {
+        console.error("Error deleting old notifications:", error.message);
+    }
+});
+
+

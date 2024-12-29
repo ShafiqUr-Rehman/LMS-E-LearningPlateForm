@@ -10,7 +10,7 @@ import { dirname, join } from 'path';
 import { sendToken } from "../utilis/jwt.js";
 import redisClient from "../utilis/redis.js";
 import { accessTokenOptions, refreshTokenOptions } from "../utilis/jwt.js";
-import { getUserById } from "../services/user.services.js";
+import { getAllUserService, getUserById } from "../services/user.services.js";
 import cloudinary from "cloudinary";
 
 dotenv.config();
@@ -322,7 +322,16 @@ export const updateUserAvatar = async (req, res, next) => {
             avatar: user.avatar,
         });
     } catch (error) {
-        next(new ErrorHandler(error.message, 500));
+        next(new ErrorHandler(error.message, 400));
+    }
+};
+
+//Get all Users --only Admin
+export const getAllUser = async (req, res, next) => {
+    try {
+        await getAllUserService(req, res, next); 
+    } catch (error) {
+        next(new ErrorHandler(error.message, 400));
     }
 };
 

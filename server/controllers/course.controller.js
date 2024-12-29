@@ -1,6 +1,6 @@
 import Course from "../models/course.model.js";
 import cloudinary from "cloudinary";
-import { createCourse } from "../services/course.services.js";
+import { createCourse, getAllCourseService } from "../services/course.services.js";
 import ErrorHandler from "../utilis/ErrorHandler.js";
 import redisClient from "../utilis/redis.js";
 import mongoose from "mongoose";
@@ -207,7 +207,13 @@ export const addQuestions = async (req, res, next) => {
         };
         // add this question to our couseeContent;
         courseContent.questions.push(newQuestion);
-        await course.save();
+        await NotificationModel.create({
+            user: req.user._id,
+            title: "New Question Received",
+            message: `You have a new Question in ${courseContent?.title}.`,
+        });
+        await course?.save();
+
         res.status(200).json({
             success: true,
             course,
@@ -265,7 +271,6 @@ export const AddAnswer = async (req, res, next) => {
 
         // Mark the nested fields as modified
         course.markModified('courseData');
-
         await course.save();
 
         // Send notification email if the answer is not from the question creator
@@ -275,13 +280,13 @@ export const AddAnswer = async (req, res, next) => {
                 title: courseContent.title,
             };
             try {
-                await sendMail({
-                    email: question.user.email,
-                    subject: "Question Reply",
-                    template: "question-reply.ejs",
-                    data,
+                
+            // add notification later
+                await NotificationModel.create({
+                    user: req.user._id,
+                    title: "New Question Reply Received",
+                    message: `You have a new Question in ${courseContent?.title}.`,
                 });
-                console.log("Notification email sent successfully");
 
             } catch (error) {
                 console.error("Error sending email:", error);
@@ -367,5 +372,13 @@ export const addReplyToReview = async (req, res, next) => {
 
 
 
+//Get all Courses --only Admin
+export const getAllCourses = async (req, res, next) => {
+    try {
+        await getAllCourseService(req, res, next);
+    } catch (error) {
+        next(new ErrorHandler(error.message, 400));  
+    }
+};
 
 

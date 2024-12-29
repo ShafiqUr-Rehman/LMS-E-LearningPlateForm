@@ -7,6 +7,7 @@ import NotificationModel from "../models/notification.model.js";
 import ejs from "ejs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import { getAllOrderService } from "../services/order.services.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -99,6 +100,15 @@ export const createOrder = async (req, res, next) => {
         });
     } catch (error) {
         return next(new ErrorHandler(error.message || "Internal Server Error", 500));
+    }
+};
+
+//Get all Orders --only Admin
+export const getAllOrder = async (req, res, next) => {
+    try {
+        await getAllOrderService(req, res, next); 
+    } catch (error) {
+        next(new ErrorHandler(error.message, 400));
     }
 };
 

@@ -13,3 +13,16 @@ export const newOrder = async (data, res, next) => {
         return next(new ErrorHandler(error.message || "Failed to create order", 500));
     }
 };
+
+// Get All Orders
+export const getAllOrderService = async (req, res, next) => {
+    try {
+        const orders = await OrderModel.find().sort({ createdAt: -1 });
+        res.status(200).json({
+            success: true,
+            orders,
+        });
+    } catch (error) {
+        next(new ErrorHandler(error.message, 500)); 
+    }
+};

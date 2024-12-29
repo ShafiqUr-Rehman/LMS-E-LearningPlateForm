@@ -1,12 +1,13 @@
 import expres from "express"
 import {
-    createOrder,
+    createOrder,getAllOrder
 } from "../controllers/order.controller.js"
-import {isAuthenticated } from "../middleWare/auth.js";
+import {authorizeRoles, isAuthenticated } from "../middleWare/auth.js";
 
 
 const orderRouter = expres.Router();
 orderRouter.post("/create-order", isAuthenticated,createOrder);
+orderRouter.get("/get-all-orders", isAuthenticated, authorizeRoles("admin"), getAllOrder);
 
 
 
