@@ -43,14 +43,18 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
-    courses: [
-      {
-        course_id: {
-          type: String,
-          required: true,
+    courses: {
+      type: [
+        {
+          course_id: {
+            type: String,
+            required: true,
+          },
         },
-      },
-    ],
+      ],
+      default: [],
+    },
+
     isVerified: {
       type: Boolean,
       default: false,
@@ -89,8 +93,8 @@ userSchema.methods.SignAccessToken = function () {
 
 // sing refresh token
 userSchema.methods.SignRefreshToken = function () {
-  return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN || '',{
-    expiresIn : "5m" ,
+  return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN || '', {
+    expiresIn: "5m",
   });
 }
 

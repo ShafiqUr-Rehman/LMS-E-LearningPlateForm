@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import userRouter from './routes/user.route.js';
 import courseRouter from './routes/course.route.js';
+import orderRouter from './routes/order.route.js';
 import { v2 as cloudinary } from 'cloudinary';
 dotenv.config();
 cloudinary.config({
@@ -37,6 +38,7 @@ mongoose
 
 app.use("/server/v1", userRouter);
 app.use("/server/v1", courseRouter);
+app.use("/server/v1", orderRouter);
 
 
 app.all("*", (req, res, next) => {

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: #222222;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .content h2 {
+            margin-top: 0;
+            color: #333333;
+            font-size: 20px;
+        }
+
+        .content p {
+            color: #555555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .order-table th,
+        .order-table td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        .order-table th {
+            background-color: #222222;
+            color: #ffffff;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px 20px;
+            font-size: 12px;
+            color: #888888;
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Your Order Confirmation</h1>
+        </div>
+        <div class="content">
+            <h2>Thank you for your order, <%= user.name %>!</h2>
+            <p>We are thrilled to have you as part of our learning community. Below are the details of your order:</p>
+
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Order Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#<%= order._id %></td>
+                        <td><%= order.date %></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Courses Ordered:</h3>
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Course Name</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% order.items.forEach(item => { %>
+                        <tr>
+                            <td><%= item.name %></td>
+                            <td>$<%= item.price.toFixed(2) %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+
+            <p>If you have any questions, feel free to contact us.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 E-learning Platform. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+
+</html>
