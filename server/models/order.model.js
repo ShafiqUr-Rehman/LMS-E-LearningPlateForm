@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const { Schema } = mongoose;  // Ensure Schema is properly destructured
+const { Schema } = mongoose;  
 const orderSchema = new Schema({
    courseId: {
     type: String,

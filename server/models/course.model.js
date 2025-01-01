@@ -10,7 +10,7 @@ const reviewSchema = new mongoose.Schema({
         default: 0,
     },
     comment: String,
-    commentReplies : [Object],
+    commentReplies: [Object],
 
 });
 
@@ -22,7 +22,7 @@ const linkSchema = new mongoose.Schema({
 const commentSchema = new mongoose.Schema({
     user: Object,
     question: String,
-    questoinReplies: [Object],
+    questionReplies: [Object],
 });
 
 const courseDataSchema = new mongoose.Schema({
@@ -48,11 +48,11 @@ const courseSchema = new mongoose.Schema({
         type: Number
     },
     thumbnail: {
-        public_id: { type: String,  },
+        public_id: { type: String, },
     },
     url: {
         type: String,
-      
+
     },
     tags: {
         type: [String],
@@ -91,7 +91,7 @@ const courseSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-});
+}, { timestamps: true });
 
 const Course = mongoose.model("Course", courseSchema);
 export default Course;

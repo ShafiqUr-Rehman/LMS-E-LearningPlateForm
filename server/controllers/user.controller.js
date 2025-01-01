@@ -25,7 +25,8 @@ const DEFAULT_AVATAR = {
 
 const createActivationToken = (userData) => {
     const activationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log("ACTIVATION_SECRET:", process.env.ACTIVATION_SECRET);
+
+    // console.log("ACTIVATION_SECRET:", process.env.ACTIVATION_SECRET);
     if (!process.env.ACTIVATION_SECRET) {
         throw new Error("ACTIVATION_SECRET is not set in the environment variables");
     }
@@ -39,7 +40,7 @@ const createActivationToken = (userData) => {
 };
 
 export const registerUser = async (req, res, next) => {
-    console.log("Received registration request:", req.body);
+    // console.log("Received registration request:", req.body);
     try {
         const { name, email, password } = req.body;
         const isEmailExists = await User.findOne({ email });
@@ -52,7 +53,7 @@ export const registerUser = async (req, res, next) => {
 
         const data = { user: { name }, activationCode };
         const templatePath = join(__dirname, '..', 'mails', 'activation-mail.ejs');
-        console.log("Template path:", templatePath);
+        // console.log("Template path:", templatePath);
 
         try {
             const html = await ejs.renderFile(templatePath, data);
