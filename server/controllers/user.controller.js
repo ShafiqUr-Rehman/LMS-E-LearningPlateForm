@@ -10,7 +10,7 @@ import { dirname, join } from 'path';
 import { sendToken } from "../utilis/jwt.js";
 import redisClient from "../utilis/redis.js";
 import { accessTokenOptions, refreshTokenOptions } from "../utilis/jwt.js";
-import { getAllUserService, getUserById } from "../services/user.services.js";
+import { getAllUserService, getUserById, updateUserRoleService } from "../services/user.services.js";
 import cloudinary from "cloudinary";
 
 dotenv.config();
@@ -334,6 +334,38 @@ export const getAllUser = async (req, res, next) => {
         next(new ErrorHandler(error.message, 400));
     }
 };
+
+// update user role only for admin
+export const updateUserRole = async (req, res, next) => {
+    try {
+        const { id, role } = req.body;
+        await updateUserRoleService(id, role, res, next);
+    } catch (error) {
+        next(new ErrorHandler(error.message, 400));
+    }
+};
+
+// Delete User  -- only admin
+export const deleteUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const user = await User.findById(id);
+        if (!user) {
+            return next(new ErrorHandler("User not found", 404));
+        }
+        await user.deleteOne();
+        await redisClient.del(id);
+
+        res.status(200).json({
+            success: true,
+            message: "User deleted successfully",
+        });
+    } catch (error) {
+        next(new ErrorHandler(error.message, 400));
+    }
+};
+
 
 
 

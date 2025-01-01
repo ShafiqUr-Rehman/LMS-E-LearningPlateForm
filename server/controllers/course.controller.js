@@ -381,4 +381,25 @@ export const getAllCourses = async (req, res, next) => {
     }
 };
 
+// Delete Course  -- only admin
+export const deleteCourse = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const coures = await Course.findById(id);
+        if (!coures) {
+            return next(new ErrorHandler("coures not found", 404));
+        }
+        await coures.deleteOne();
+        await redisClient.del(id);
+
+        res.status(200).json({
+            success: true,
+            message: "coures deleted successfully",
+        });
+    } catch (error) {
+        next(new ErrorHandler(error.message, 400));
+    }
+};
+
 

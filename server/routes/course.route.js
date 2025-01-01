@@ -1,7 +1,7 @@
 import expres from "express"
 import {
     uploadCourse,editCourse,getSingleCourse, getAllCourse,getCourseByUser,addQuestions,
-    AddAnswer, addReview, addReplyToReview,getAllCourses
+    AddAnswer, addReview, addReplyToReview,getAllCourses , deleteCourse
 } from "../controllers/course.controller.js"
 import { authorizeRoles, isAuthenticated, } from "../middleWare/auth.js";
 
@@ -17,6 +17,7 @@ courseRouter.put("/add-answer",isAuthenticated ,AddAnswer);
 courseRouter.put("/add-review/:id",isAuthenticated ,addReview);
 courseRouter.put("/add-reply",isAuthenticated , authorizeRoles("admin"), addReplyToReview);
 courseRouter.get("/get-all-courses",isAuthenticated , authorizeRoles("admin"), getAllCourses);
+courseRouter.delete("/delete-course/:id",isAuthenticated , authorizeRoles("admin"), deleteCourse);
 
 
 export default courseRouter
