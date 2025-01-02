@@ -4,7 +4,6 @@ import { createCourse, getAllCourseService } from "../services/course.services.j
 import ErrorHandler from "../utilis/ErrorHandler.js";
 import redisClient from "../utilis/redis.js";
 import mongoose from "mongoose";
-import sendMail from '../utilis/send.mail.js';
 
 export const uploadCourse = async (req, res, next) => {
     try {
@@ -83,14 +82,16 @@ export const getSingleCourse = async (req, res, next) => {
         const isCacheExist = await redisClient.get(courseId);
 
         if (isCacheExist) {
-            console.log("Request hitting Redis");
+
+            // console.log("Request hitting Redis");
             const course = JSON.parse(isCacheExist);
             return res.status(200).json({
                 success: true,
                 course
             });
         } else {
-            console.log("Request hitting MongoDB");
+
+            // console.log("Request hitting MongoDB");
             const course = await Course.findById(courseId)
                 .select("-courseData.videoUrl -courseData.suggestions -courseData.questions -courseData.links");
 
@@ -102,9 +103,8 @@ export const getSingleCourse = async (req, res, next) => {
             }
 
             await redisClient.set(courseId, JSON.stringify(course), {
-                EX: 3600 // 1 hour expiration
+                EX: 604800 // almost 7 hour expiration
             });
-
             return res.status(200).json({
                 success: true,
                 course

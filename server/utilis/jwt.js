@@ -26,7 +26,7 @@ export const sendToken = async (user, statusCode, res) => {
     // console.log('Storing user in Redis:', user._id.toString());
 
     await redisClient.set(user._id.toString(), JSON.stringify(user),{
-        EX: 90 * 24 * 60 * 60 // 90 days in seconds
+        EX: 7 * 24 * 60 * 60 // 7 days in seconds
     });
     console.log('User stored in Redis');
 

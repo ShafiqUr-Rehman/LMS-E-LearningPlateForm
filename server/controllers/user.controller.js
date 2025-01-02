@@ -167,7 +167,7 @@ export const updateAccessToken = async (req, res, next) => {
         // Get the user session from Redis using the decoded user ID
         const session = await redisClient.get(decoded.id);
         if (!session) {
-            return next(new ErrorHandler("Could not refresh token", 400));
+            return next(new ErrorHandler("Please login to access this resources", 400));
         }
 
         // Parse session data to get user information

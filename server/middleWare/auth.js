@@ -26,8 +26,8 @@ export const isAuthenticated = async (req, res, next) => {
         // Fetch user from Redis
         const user = await redisClient.get(decoded.id);
         if (!user) {
-            console.error("isAuthenticated Middleware: User not found in Redis");
-            return next(new ErrorHandler("User not found", 404));
+            // console.error("isAuthenticated Middleware: User not found in Redis");
+            return next(new ErrorHandler("Please login to access this resource", 404));
         }
 
         req.user = JSON.parse(user); // Parse user data from Redis

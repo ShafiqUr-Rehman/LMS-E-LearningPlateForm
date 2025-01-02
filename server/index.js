@@ -9,6 +9,7 @@ import userRouter from './routes/user.route.js';
 import courseRouter from './routes/course.route.js';
 import orderRouter from './routes/order.route.js';
 import analyticsRouter from './routes/analytics.route.js';
+import layoutRouter from './routes/layout.route.js';
 
 import notificationRouter from './routes/notification.route.js';
 import { v2 as cloudinary } from 'cloudinary';
@@ -44,6 +45,7 @@ app.use("/server/v1", courseRouter);
 app.use("/server/v1", orderRouter);
 app.use("/server/v1", notificationRouter);
 app.use("/server/v1", analyticsRouter);
+app.use("/server/v1", layoutRouter);
 
 
 app.all("*", (req, res, next) => {
